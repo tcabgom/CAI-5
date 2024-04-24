@@ -1,53 +1,91 @@
+import signal
+import threading
+import time
+
 from phe import paillier
 import random
 
-KEY_LENGTH = 2048
+KEY_LENGTH = 1024
 
 # Generar un par de claves para el cifrado de Paillier
 public_key, private_key = paillier.generate_paillier_keypair(n_length=KEY_LENGTH)
 
-# Función para cifrar los precios de los vuelos utilizando Homomorphic Encryption
-def encrypt_flight_prices(prices):
-    encrypted_prices = [public_key.encrypt(price) for price in prices]
-    return encrypted_prices
+# Función para cifrar los datos de gastos de los clientes
+def encrypt_expenses(expenses):
+    encrypted_expenses = [public_key.encrypt(expense) for expense in expenses]
+    return encrypted_expenses
 
-# Función para recuperar el precio de un vuelo específico de forma privada
-def get_encrypted_price(flight_index, encrypted_prices):
-    encrypted_price = encrypted_prices[flight_index]
-    return encrypted_price
+# Función para obtener el dato cifrado en la posición especificada
+def get_encrypted_data_at_position(encrypted_data, position):
+    return encrypted_data[position]
 
-# Función para desencriptar el precio de un vuelo
-def decrypt_price(encrypted_price):
-    decrypted_price = private_key.decrypt(encrypted_price)
-    return decrypted_price
+# Función para desencriptar el dato en la posición especificada
+def decrypt_data_at_position(encrypted_data, position):
+    decrypted_data = private_key.decrypt(encrypted_data[position])
+    return decrypted_data
 
-# Función para testear la eficiencia y eficacia del protocolo
-def testear_protocolo():
-    # Generar precios de vuelos aleatorios (simulados)
-    flight_prices = [random.randint(100, 1000) for _ in range(10)]
+# Función principal para realizar las pruebas de efectividad
+def testear_efectividad():
+    # Realizar múltiples pruebas
+    for i in range(5):
+        print(f"Prueba {i+1}:")
+        # Generar datos de gastos de ejemplo de los clientes
+        client_expenses = [random.randint(100, 1000*pow(10,i)) for _ in range(random.randint(5, 20))]
+        print("Gastos de los clientes:", client_expenses)
 
-    # Cifrar los precios de vuelos
-    encrypted_prices = encrypt_flight_prices(flight_prices)
+        # Cifrar los datos de gastos de los clientes
+        encrypted_expenses = encrypt_expenses(client_expenses)
 
-    # Realizar pruebas de recuperación de precios
-    for i in range(len(flight_prices)):
-        encrypted_price = get_encrypted_price(i, encrypted_prices)
-        decrypted_price = decrypt_price(encrypted_price)
-        if decrypted_price == flight_prices[i]:
-            print(f"Prueba {i+1}: El precio desencriptado del vuelo {i+1} es correcto.")
-        else:
-            print(f"Prueba {i+1}: Error al desencriptar el precio del vuelo {i+1}.")
+        # Seleccionar una posición aleatoria para obtener el dato cifrado
+        position = random.randint(0, len(encrypted_expenses) - 1)
 
-# Párrafo para la Política de Privacidad
-politica_privacidad_precios = (
-    "En nuestra compañía, respetamos su privacidad cuando solicita los precios de nuestros vuelos. "
-    "Utilizamos tecnologías de cifrado avanzadas para garantizar que sus solicitudes sean privadas y seguras. "
-    "No realizamos ningún seguimiento de sus consultas de precios, ya que su privacidad es nuestra prioridad."
-)
+        # Obtener el dato cifrado en la posición especificada
+        encrypted_data_at_position = get_encrypted_data_at_position(encrypted_expenses, position)
+        print(f"Dato cifrado en la posición {position}:", encrypted_data_at_position)
 
-# Ejecutar las pruebas y mostrar la Política de Privacidad
+        # Desencriptar el dato en la posición especificada
+        decrypted_data_at_position = decrypt_data_at_position(encrypted_expenses, position)
+        print(f"Dato desencriptado en la posición {position}:", decrypted_data_at_position, "\n")
+
+# Función para manejar la señal de tiempo límite
+def timeout_handler(signum, frame):
+    raise TimeoutError("La función ha superado el límite de tiempo")
+
+# Función principal para realizar las pruebas de rendimiento
+def testear_rendimiento():
+    # Generar un conjunto de datos grande para el rendimiento
+    for i in range(1, 11):
+        client_expenses = [random.randint(100, 1000) for _ in range(i*5)]
+
+        # Cifrar los datos y medir el tiempo
+        start_time = time.time()
+        encrypted_expenses = encrypt_expenses(client_expenses)
+        encryption_time = time.time() - start_time
+
+        # Seleccionar una posición aleatoria para obtener el dato cifrado
+        position = random.randint(0, len(encrypted_expenses) - 1)
+
+        # Medir el tiempo para obtener el dato cifrado en la posición especificada
+        start_time = time.time()
+        encrypted_data_at_position = get_encrypted_data_at_position(encrypted_expenses, position)
+        getting_time = time.time() - start_time
+
+        # Desencriptar el dato en la posición especificada y medir el tiempo
+        start_time = time.time()
+        decrypted_data_at_position = decrypt_data_at_position(encrypted_expenses, position)
+        decryption_time = time.time() - start_time
+
+        if decryption_time is not None:
+            print("\nResultados de la prueba de rendimiento:")
+            print(f"Cantidad de datos: {i*5}")
+            print(f"Tiempo de cifrado: {encryption_time:.6f} segundos")
+            print(f"Tiempo de obtener dato cifrado: {getting_time:.6f} segundos")
+            print(f"Tiempo de desencriptación: {decryption_time:.6f} segundos\n")
+            print(f"Tiempo total: {encryption_time+getting_time+decryption_time:.6f} segundos\n")
+            print(f"Dato desencriptado en la posición {position}:", decrypted_data_at_position)
+            print("\n")
+
+
 if __name__ == "__main__":
-    print("Protocolo recomendado para preservar la privacidad en la recuperación de precios de vuelos:")
-    testear_protocolo()
-    print("\nPárrafo para la Política de Privacidad:")
-    print(politica_privacidad_precios)
+    testear_efectividad()
+    testear_rendimiento()
