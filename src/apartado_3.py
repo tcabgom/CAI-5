@@ -1,8 +1,10 @@
 from phe import paillier
 import random
 
+KEY_LENGTH = 2048
+
 # Generar un par de claves para el cifrado de Paillier
-public_key, private_key = paillier.generate_paillier_keypair()
+public_key, private_key = paillier.generate_paillier_keypair(n_length=KEY_LENGTH)
 
 # Función para cifrar los precios de los vuelos utilizando Homomorphic Encryption
 def encrypt_flight_prices(prices):

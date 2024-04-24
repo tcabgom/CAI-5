@@ -5,8 +5,10 @@ import time
 from phe import paillier
 import random
 
+KEY_LENGTH = 2048
+
 # Generar un par de claves para el cifrado de Paillier
-public_key, private_key = paillier.generate_paillier_keypair()
+public_key, private_key = paillier.generate_paillier_keypair(n_length=KEY_LENGTH)
 
 # Función para cifrar los datos de gastos de los clientes
 def encrypt_expenses(expenses):
@@ -29,7 +31,7 @@ def testear_efectividad():
     for i in range(5):
         print(f"Prueba {i+1}:")
         # Generar datos de gastos de ejemplo de los clientes
-        client_expenses = [random.randint(100, 1000) for _ in range(random.randint(5, 20))]
+        client_expenses = [random.randint(100, 1000*pow(10,i)) for _ in range(random.randint(5, 20))]
         print("Gastos de los clientes:", client_expenses)
 
         # Cifrar los datos de gastos de los clientes
@@ -56,7 +58,7 @@ def timeout_handler(signum, frame):
 
 def testear_rendimiento():
     # Generar un conjunto de datos grande para el rendimiento
-    for i in range(1, 10):
+    for i in range(1, 11):
         client_expenses = [random.randint(100, 1000) for _ in range(i*5)]
 
         # Cifrar los datos y medir el tiempo
@@ -68,31 +70,20 @@ def testear_rendimiento():
         start_time = time.time()
         sum_encrypted = sum_encrypted_data(encrypted_expenses)
         sum_time = time.time() - start_time
-
-        # Desencriptar el resultado de la suma y medir el tiempo
-        decryption_time = None
-        t = threading.Timer(5, timeout_handler)
-        t.start()
-        try:
-            start_time = time.time()
-            sum_decrypted = decrypt_sum(sum_encrypted)
-            decryption_time = time.time() - start_time
-        except TimeoutError as e:
-            print(f"La función ha superado el límite de tiempo ({e})")
-            sum_decrypted = None
-            i = 9999
-        finally:
-            t.cancel()  # Cancelar el temporizador después de que la función haya terminado
+        start_time = time.time()
+        sum_decrypted = decrypt_sum(sum_encrypted)
+        decryption_time = time.time() - start_time
 
         if decryption_time is not None:
             # Verificar que la suma desencriptada es correcta
             expected_sum = sum(client_expenses)
 
-            print("Resultados de la prueba de rendimiento:")
+            print("\nResultados de la prueba de rendimiento:")
             print(f"Cantidad de datos: {i*5}")
             print(f"Tiempo de cifrado: {encryption_time:.6f} segundos")
             print(f"Tiempo de suma: {sum_time:.6f} segundos")
             print(f"Tiempo de desencriptación: {decryption_time:.6f} segundos")
+            print(f"\nTiempo total: {encryption_time + sum_time + decryption_time:.6f} segundos\n")
             print("Suma esperada de los gastos:", expected_sum)
             print("Suma desencriptada:", sum_decrypted)
             if sum_decrypted == expected_sum:
