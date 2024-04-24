@@ -1,0 +1,4 @@
+
+]python:S6711ž"DUse a "numpy.random.Generator" here instead of this legacy function.(ô­Üá
+bpython:S6711µ"DUse a "numpy.random.Generator" here instead of this legacy function.(é™Éùúÿÿÿÿ
+kpython:S1854Å"MRemove this assignment to local variable 'provider'; the value is never used.(£¿Áãÿÿÿÿÿ

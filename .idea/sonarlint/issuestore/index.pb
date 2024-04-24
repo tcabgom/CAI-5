@@ -7,3 +7,5 @@ A
 src/apartado_2.py,b\7\b7216a3198cf041d238ac03c11b12deb1d425db8
 A
 src/apartado_3.py,6\3\63f4e981cc4a6591b59aa8f55a1cab49d42cad8a
+M
+src/consultoria_3/cuantica.py,1\8\183590f7a53d335e6e46eaece2fd1648d6c45fbc
